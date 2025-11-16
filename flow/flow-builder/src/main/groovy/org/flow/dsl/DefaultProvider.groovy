@@ -5,7 +5,6 @@ import org.dorkmaster.flow.Expression
 import org.dorkmaster.flow.Flow
 import org.dorkmaster.flow.builder.Provider
 
-
 class DefaultProvider implements Provider {
 
     def flows = [simple: Flow.class]

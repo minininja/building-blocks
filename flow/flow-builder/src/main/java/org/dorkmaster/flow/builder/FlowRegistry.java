@@ -4,8 +4,8 @@ import org.dorkmaster.flow.Flow;
 
 import java.io.InputStream;
 
-public interface FlowBuilder {
-    FlowBuilder register(Provider provider);
-    FlowBuilder load(InputStream in);
+public interface FlowRegistry {
+    FlowRegistry register(Provider provider);
+    FlowRegistry load(InputStream in);
     Flow build(String name);
 }

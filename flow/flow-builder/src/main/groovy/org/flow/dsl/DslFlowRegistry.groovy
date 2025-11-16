@@ -4,20 +4,22 @@ import groovy.yaml.YamlSlurper
 import org.dorkmaster.flow.Action
 import org.dorkmaster.flow.Expression
 import org.dorkmaster.flow.Flow
-import org.dorkmaster.flow.builder.FlowBuilder
+import org.dorkmaster.flow.builder.FlowRegistry
 import org.dorkmaster.flow.builder.Provider
 
-class DslFlowBuilder implements FlowBuilder {
+class DslFlowRegistry implements FlowRegistry {
     Collection providers = [new DefaultProvider()]
 
-    FlowBuilder register(Provider provider) {
+    @Override
+    FlowRegistry register(Provider provider) {
         providers.add(provider)
     }
 
     Map<String, Flow> flows = new HashMap<>()
 
-    FlowBuilder load(InputStream in) {
-        def config = new YamlSlurper().parse(in)
+    @Override
+    FlowRegistry load(InputStream is) {
+        def config = new YamlSlurper().parse(is)
 
         config.providers.each { providerClazz ->
             providers << (Provider) Class.forName(providerClazz).newInstance()

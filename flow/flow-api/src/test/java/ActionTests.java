@@ -14,6 +14,7 @@ public class ActionTests {
             return ctx.set("one", "one");
         }
     };
+
     public static final Action two = new Action() {
         @Override
         public FlowContext execute(FlowContext ctx) {
