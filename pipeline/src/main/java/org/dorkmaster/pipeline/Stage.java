@@ -4,7 +4,7 @@ import java.util.Collection;
 
 public interface Stage {
     Collection<String> required();
-    Collection<String> provided();
+    Collection<String> provides();
 
     PipelineContext execute(PipelineContext ctx);
 }

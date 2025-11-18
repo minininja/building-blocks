@@ -25,7 +25,7 @@ public class StandardPipelineTests {
                     }
 
                     @Override
-                    public Collection<String> provided() {
+                    public Collection<String> provides() {
                         return List.of("b");
                     }
 
@@ -50,7 +50,7 @@ public class StandardPipelineTests {
                     }
 
                     @Override
-                    public Collection<String> provided() {
+                    public Collection<String> provides() {
                         return List.of("b");
                     }
 
@@ -79,7 +79,7 @@ public class StandardPipelineTests {
                     }
 
                     @Override
-                    public Collection<String> provided() {
+                    public Collection<String> provides() {
                         return List.of("b");
                     }
 

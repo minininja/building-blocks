@@ -1,5 +1,6 @@
 package org.dorkmaster.flow;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,4 +16,7 @@ public class FlowContext {
         return this;
     }
 
+    public Collection<Map.Entry<String, Object>> entries(){
+        return ctx.entrySet();
+    }
 }

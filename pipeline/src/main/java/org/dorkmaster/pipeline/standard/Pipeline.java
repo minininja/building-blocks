@@ -1,6 +1,5 @@
 package org.dorkmaster.pipeline.standard;
 
-import org.dorkmaster.pipeline.BasePipelineContext;
 import org.dorkmaster.pipeline.PipelineContext;
 import org.dorkmaster.pipeline.PipelineException;
 import org.dorkmaster.pipeline.Stage;
@@ -25,7 +24,7 @@ public class Pipeline {
     }
 
     private boolean postVerify(Stage stage, PipelineContext ctx) {
-        return verify(stage.provided(), ctx);
+        return verify(stage.provides(), ctx);
     }
 
     private boolean verify(Collection<String> keys, PipelineContext ctx) {

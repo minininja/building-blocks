@@ -24,7 +24,7 @@ public class ParallelPipelineTests {
                     }
 
                     @Override
-                    public Collection<String> provided() {
+                    public Collection<String> provides() {
                         return List.of();
                     }
 
@@ -40,7 +40,7 @@ public class ParallelPipelineTests {
                     }
 
                     @Override
-                    public Collection<String> provided() {
+                    public Collection<String> provides() {
                         return List.of();
                     }
 
@@ -56,7 +56,7 @@ public class ParallelPipelineTests {
                     }
 
                     @Override
-                    public Collection<String> provided() {
+                    public Collection<String> provides() {
                         return List.of();
                     }
 
@@ -72,7 +72,7 @@ public class ParallelPipelineTests {
                     }
 
                     @Override
-                    public Collection<String> provided() {
+                    public Collection<String> provides() {
                         return List.of();
                     }
 
@@ -103,7 +103,7 @@ public class ParallelPipelineTests {
                     }
 
                     @Override
-                    public Collection<String> provided() {
+                    public Collection<String> provides() {
                         return List.of();
                     }
 

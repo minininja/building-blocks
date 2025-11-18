@@ -1,0 +1,28 @@
+flows:
+  noop:
+    expressions:
+      - type: "true"
+    actions:
+      - noop
+
+  noExpression:
+    actions:
+      - noop
+
+  andTrue:
+    expressions:
+      - type: and
+        expressions:
+          - type: "true"
+          - type: "true"
+    actions:
+      - noop
+
+  orTrue:
+    expressions:
+      - type: or
+        expressions:
+          - type: "true"
+          - type: "true"
+    actions:
+      - noop

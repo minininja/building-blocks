@@ -21,7 +21,7 @@ public class RenderedPipelineTests {
                     }
 
                     @Override
-                    public Collection<String> provided() {
+                    public Collection<String> provides() {
                         return List.of("b");
                     }
 

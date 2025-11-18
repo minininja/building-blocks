@@ -14,9 +14,17 @@ public class Flow implements Action {
         return this;
     }
 
+    public Expression getExpression(){
+        return expression;
+    }
+
+    public Action getAction(){
+        return action;
+    }
+
     @Override
     public FlowContext execute(FlowContext ctx) {
-        if (expression.isValid(ctx)) {
+        if (expression == null || expression.isValid(ctx)) {
             return action.execute(ctx);
         }
         return ctx;
