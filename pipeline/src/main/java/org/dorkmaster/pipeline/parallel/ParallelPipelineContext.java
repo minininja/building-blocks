@@ -1,6 +1,5 @@
 package org.dorkmaster.pipeline.parallel;
 
-
 import org.dorkmaster.pipeline.PipelineContext;
 
 import java.util.Collection;
@@ -9,6 +8,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ParallelPipelineContext implements PipelineContext {
     private Map<String, Object> context = new ConcurrentHashMap<>();
+
+    public ParallelPipelineContext() {
+    }
+
+    public ParallelPipelineContext(PipelineContext ctx) {
+        merge(ctx);
+    }
 
     @Override
     public Collection<String> keys() {
