@@ -61,12 +61,19 @@ public class DependencyResolver {
                 stages.add(a);
                 this.provides.addAll(a.provides());
             });
-            incomingStages.removeAll(stages);
+            // this becomes a bottleneck when there's a lot of stages so we'll clear if it's the same size
+            if (stages.size() > 0 && stages.size() == incomingStages.size()) {
+                incomingStages.clear();
+            } else {
+                incomingStages.removeAll(stages);
+            }
 
             if (incomingStages.size() == preCnt) {
                 throw new UnresolvedDependenciesException("Unresolvable dependencies");
             } else {
-                new Node(this).addStages(ctx, incomingStages);
+                if (!incomingStages.isEmpty()) {
+                    new Node(this).addStages(ctx, incomingStages);
+                }
             }
         }
     }

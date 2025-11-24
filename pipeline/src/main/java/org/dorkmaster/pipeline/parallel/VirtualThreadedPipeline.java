@@ -26,10 +26,10 @@ public class VirtualThreadedPipeline extends StandardPipeline {
         ParallelPipelineContext ctx = new ParallelPipelineContext(incomingContext);
 
         try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            Collection<Future<PipelineContext>> tasks = new LinkedList<>();
             for (Collection<Stage> step : bucketedStages) {
-                Collection<Future<PipelineContext>> tasks = new LinkedList<>();
+                tasks.clear();
                 for (Stage stage : step) {
-                    tasks.clear();
                     tasks.add(
                             (Future<PipelineContext>) executor.submit(() -> {
                                 ctx.merge(stage.execute(ctx));
@@ -45,6 +45,7 @@ public class VirtualThreadedPipeline extends StandardPipeline {
             }
             executor.shutdown();
         } catch (ExecutionException|InterruptedException|TimeoutException e) {
+            System.out.println("E:"+e.toString());
             throw new ThreadTimeoutExceededException("Timeout exceeded", timeout);
         }
 
