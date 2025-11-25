@@ -3,32 +3,18 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>org.dorkmaster</groupId>
         <artifactId>building-blocks</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>pipeline</artifactId>
+    <artifactId>utilities</artifactId>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.dorkmaster</groupId>
-            <artifactId>utilities</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
 
 </project>

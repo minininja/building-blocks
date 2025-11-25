@@ -19,6 +19,8 @@
     <modules>
         <module>flow</module>
         <module>pipeline</module>
+        <module>examples</module>
+        <module>utilities</module>
     </modules>
 
     <dependencyManagement>

@@ -3,13 +3,16 @@ package org.dorkmaster.pipeline.serial;
 import org.dorkmaster.pipeline.PipelineContext;
 import org.dorkmaster.pipeline.Stage;
 import org.dorkmaster.pipeline.exception.UnresolvedDependenciesException;
+import org.dorkmaster.util.TimerMessage;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DependencyResolver {
     public static class Node {
         protected Set<String> provides = new HashSet<>();
-        protected Collection<Stage> stages = new LinkedList<>();
+        protected Collection<Stage> stages = new CopyOnWriteArrayList<>();
 
         protected Node parent;
         protected Node next;
@@ -40,39 +43,27 @@ public class DependencyResolver {
                 return;
             }
 
-            int preCnt = incomingStages.size();
             Collection<String> nodeProvides = new HashSet<>(findProvidedDependencies());
             nodeProvides.addAll(ctx.keys());
+            Map<Stage,Stage> unresolved = new ConcurrentHashMap<>();
 
-            incomingStages.stream().filter(a-> {
-                // find everything which can be satisfied by the current node
-                if (a.required().isEmpty()) {
-                    return true;
+            incomingStages.parallelStream().forEach(a -> {
+                // incoming required is likely going to be immutable
+                Set<String> tmp = new HashSet<String>(a.required());
+                tmp.removeAll(nodeProvides);
+                if (tmp.isEmpty()) {
+                    stages.add(a);
+                    this.provides.addAll(a.provides());
                 } else {
-                    for (String r: a.required()) {
-                        if (!nodeProvides.contains(r)) {
-                            return false;
-                        }
-                    }
-                    return true;
+                    unresolved.put(a,a);
                 }
-            }).forEach( a -> {
-                // go ahead and add it now
-                stages.add(a);
-                this.provides.addAll(a.provides());
             });
-            // this becomes a bottleneck when there's a lot of stages so we'll clear if it's the same size
-            if (stages.size() > 0 && stages.size() == incomingStages.size()) {
-                incomingStages.clear();
-            } else {
-                incomingStages.removeAll(stages);
-            }
 
-            if (incomingStages.size() == preCnt) {
+            if (unresolved.size() == incomingStages.size()) {
                 throw new UnresolvedDependenciesException("Unresolvable dependencies");
             } else {
                 if (!incomingStages.isEmpty()) {
-                    new Node(this).addStages(ctx, incomingStages);
+                    new Node(this).addStages(ctx, unresolved.keySet());
                 }
             }
         }
@@ -88,7 +79,7 @@ public class DependencyResolver {
     public Collection<Collection<Stage>> getResolvedStages() {
         Collection<Collection<Stage>> result = new LinkedList<>();
         Node tmp = root;
-        while (tmp != null){
+        while (tmp != null) {
             if (tmp.stages.size() > 0) {
                 result.add(tmp.stages);
             }
