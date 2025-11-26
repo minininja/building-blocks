@@ -1,5 +1,8 @@
 package org.dorkmaster.util;
 
+/**
+ * Just a generic timer class.
+ */
 public class Timer {
     protected long start = System.currentTimeMillis();
 

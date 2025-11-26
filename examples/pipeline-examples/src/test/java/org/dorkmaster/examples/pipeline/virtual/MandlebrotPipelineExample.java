@@ -4,6 +4,7 @@ import org.dorkmaster.pipeline.Pipeline;
 import org.dorkmaster.pipeline.PipelineContext;
 import org.dorkmaster.pipeline.PipelineFactory;
 import org.dorkmaster.pipeline.Stage;
+import org.dorkmaster.util.Timer;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -11,24 +12,32 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MandlebrotPipelineExample {
-    int xRes = 640;
-    int yRes = 480;
+    int xRes = 1024 * 5;
+    int yRes = 768 * 5;
 
     double pMin = -2.0;
     double pMax = 2.0;
     double qMin = -2.0;
     double qMax = 2.0;
 
-    int i;
+    int i = 256;
     double max = 4.0;
+    int slices = 10;
 
     Collection<Stage> generateStages(int xres, int yres, double pmin, double pmax, double qmin, double qmax, int i, double max) {
         Collection<Stage> stages = new LinkedHashSet<>();
         stages.add(new ComputeConstantsStage(xres, yres, pmin, pmax, qmin, qmax));
-        for (int x = 0; x < xres; x++){
-            for (int y = 0; y < yres; y++){
-                stages.add(new ComputePixelStage(x, y, i, max));
-            }
+
+        int step = xres / slices;
+        int xMin = 0;
+        int xMax = xMin + step;
+        while (xMax < xres) {
+            stages.add(new ComputePixelStage(xMin, xMax, yRes, i, max));
+            xMin = xMax + 1;
+            xMax = xMin + step;
+        }
+        if (xMin < xRes){
+            stages.add(new ComputePixelStage(xMin, xres - 1, yRes, i, max));
         }
         return stages;
     }
@@ -43,6 +52,7 @@ public class MandlebrotPipelineExample {
         long runtime = t.delta();
         System.out.println("mandlebrot runtime on standard: " + runtime);
         assertTrue(ctx.keys().size() > 0);
+        assertTrue(ctx.keys().contains("slice:0"));
     }
 
     @Test
@@ -55,6 +65,7 @@ public class MandlebrotPipelineExample {
         long runtime = t.delta();
         System.out.println("mandlebrot runtime on native: " + runtime);
         assertTrue(ctx.keys().size() > 0);
+        assertTrue(ctx.keys().contains("slice:0"));
     }
 
     @Test
@@ -67,14 +78,8 @@ public class MandlebrotPipelineExample {
         long runtime = t.delta();
         System.out.println("mandlebrot runtime on virtual: " + runtime);
         assertTrue(ctx.keys().size() > 0);
-    }
+        assertTrue(ctx.keys().contains("slice:0"));
 
-    class Timer {
-        long start = System.currentTimeMillis();
-
-        long delta() {
-            return System.currentTimeMillis() - start;
-        }
     }
 
     class ComputeConstantsStage implements Stage {
@@ -92,18 +97,6 @@ public class MandlebrotPipelineExample {
             this.cxMax = cxMax;
             this.cyMin = cyMin;
             this.cyMax = cyMax;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null || getClass() != o.getClass()) return false;
-            ComputeConstantsStage that = (ComputeConstantsStage) o;
-            return xRes == that.xRes && yRes == that.yRes && Double.compare(cxMin, that.cxMin) == 0 && Double.compare(cxMax, that.cxMax) == 0 && Double.compare(cyMin, that.cyMin) == 0 && Double.compare(cyMax, that.cyMax) == 0;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(xRes, yRes, cxMin, cxMax, cyMin, cyMax);
         }
 
         @Override
@@ -135,28 +128,18 @@ public class MandlebrotPipelineExample {
     }
 
     class ComputePixelStage implements Stage {
-        int x;
-        int y;
+        int xMin;
+        int xMax;
+        int yRes;
         int i;
         double max;
 
-        public ComputePixelStage(int x, int y, int i, double max) {
-            this.x = x;
-            this.y = y;
+        public ComputePixelStage(int xMin, int xMax, int yRes, int i, double max) {
+            this.xMin = xMin;
+            this.xMax = xMax;
+            this.yRes = yRes;
             this.i = i;
             this.max = max;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null || getClass() != o.getClass()) return false;
-            ComputePixelStage that = (ComputePixelStage) o;
-            return x == that.x && y == that.y && i == that.i && Double.compare(max, that.max) == 0;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(x, y, i, max);
         }
 
         @Override
@@ -175,20 +158,26 @@ public class MandlebrotPipelineExample {
             double[] cx = (double[]) ctx.get("cx");
             double[] cy = (double[]) ctx.get("cy");
 
-            double zx = 0;
-            double zy = 0;
-            double tmp;
+            int cnt = 0;
+            for (int x = xMin; x <= xMax; x++) {
+                for (int y = 0; y < yRes; y++) {
+                    double zx = 0;
+                    double zy = 0;
+                    double tmp;
 
-            int i = 0;
-            while (i < this.i && Math.abs(zx +zy) < max) {
-                tmp = zx * zx + zy * zy + cx[x];
-                zy = 2 * zx * zy + cy[y];
-                zx = tmp;
-                i++;
+                    int iterator = 0;
+                    while (iterator < i && Math.abs(zx +zy) < max) {
+                        tmp = zx * zx + zy * zy + cx[x];
+                        zy = 2 * zx * zy + cy[y];
+                        zx = tmp;
+                        iterator++;
+                    }
+                    pixels[x][y] = iterator;
+                    cnt++;
+                }
             }
-            pixels[x][y] = i;
 
-            return ctx;
+            return ctx.set("slice:"+xMin, cnt);
         }
     }
 }
