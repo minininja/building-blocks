@@ -1,0 +1,56 @@
+@startuml
+
+interface Action {
+    + FlowContext execute(FlowContext ctx)
+}
+
+interface Expression {
+    + boolean isValid(FlowContext ctx)
+}
+
+class Flow implements Action {
+    - Expression expression
+    - Action action
+    + Flow setExpression(Expression expression)
+    + Flow setAction(Action action)
+    + Expression getExpression()
+    + Action getAction()
+}
+
+class FlowContext {
+    - Map<String, Object> ctx
+    + Object get(String key)
+    + FlowContext set(String key, Object value)
+    + Collection<Map.Entry<String, Object>> entries()
+}
+
+abstract class CompositeExpression implements Expression {
+    # Collection<Expression> expressions
+    + CompositeExpression(Collection<Expression> expressions)
+}
+
+class AndExpression extends CompositeExpression {
+    + AndExpression(Collection<Expression> expressions)
+}
+
+class JexlEvalExpression implements Expression {
+    - final JexlEngine jexl
+    - String expresssion
+    + JexlEvalExpression(String expresssion)
+}
+
+class NotExpression implements Expression {
+    # Expression expression;
+    + NotExpression(Expression expression)
+}
+
+class OrExpression extends CompositeExpression {
+    + OrExpression(Collection<Expression> expressions)
+}
+
+class CompositeAction implements Action {
+    + Collection<Action> actions
+    + CompositeAction(Collection<Action> actions)
+}
+@enduml
+

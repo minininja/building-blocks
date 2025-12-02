@@ -12,11 +12,13 @@ public class BasePipelineContext implements PipelineContext {
         return context.keySet();
     }
 
+    @Override
     public BasePipelineContext set(String key, Object value) {
         context.put(key, value);
         return this;
     }
 
+    @Override
     public Object get(String key) {
         return context.get(key);
     }

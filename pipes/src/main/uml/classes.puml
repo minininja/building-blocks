@@ -1,0 +1,35 @@
+@startuml
+
+interface Pipe<I,O> {
+    + O process(I input)
+}
+
+abstract class AbstractChainedPipe<I,O> implements Pipe<I,O> {
+    - Pipe<I,O> next
+    + AbstractChainedPipe<I,O> setNext(Pipe<I,O> next)
+    # O next(I input);
+}
+
+class SplitPipe<I,O> implements Pipe<I,O> {
+    - Collection<I,O> splits
+    - Set<O> results
+    + SplitPipe<I,O> add(Pipe<I,O> right)
+    + Collection<O> getResults();
+}
+
+class StrategyPipe<I,O> implements Pipe<I,O> {
+    - Function<Boolean> decider;
+    - Pipe<I,O> left
+    - Pipe<I,O> right
+    + StrategyPipe<I,O>(Function<Boolean> decider)
+    + SplitPipe<I,O> setLeft(Pipe<I,O> left)
+    + SplitPipe<I,O> setRight(Pipe<I,O> right)
+}
+
+class TracePipe<I,O> extends AbstractChainedPipe<I,O> {
+    - static Logger logger
+
+    # String mesg;
+    + TracePipe<I,O>(String mesg)
+}
+@enduml

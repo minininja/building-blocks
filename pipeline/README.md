@@ -7,3 +7,6 @@ expected result of the pipeline.
 Pipeline stages can be defined with "required" inputs as well fields that they 
 provide, as outputs.  If these are specified then the pipeline will evaluate these
 pre and post conditions throwing an exception if they are not met.
+
+## Class structure
+![](src/main/uml/classes.png)

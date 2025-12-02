@@ -1,0 +1,107 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class BasePipelineContext implements PipelineContext {
+    - Map<String, Object> context
+}
+
+interface Pipeline {
+    + PipelineContext execute(PipelineContext ctx)
+}
+
+interface PipelineContext {
+    + Collection<String> keys();
+    + PipelineContext set(String key, Object value);
+    + Object get(String key);
+    + static PipelineContext newInstance()
+}
+
+class PipelineFactory {
+    + static Pipeline createStandard(Collection<Stage> stages)
+    + static Pipeline createNative(Collection<Stage> stages)
+    + static Pipeline createNative(Collection<Stage> stages, int timeout)
+    + static Pipeline createVirtual(Collection<Stage> stages)
+    + static Pipeline createVirtual(Collection<Stage> stages, int timeout)
+}
+
+interface Stage {
+    + Collection<String> required();
+    + Collection<String> provides();
+    + PipelineContext execute(PipelineContext ctx)
+}
+
+abstract class AbstractBasePipeline implements Pipeline {
+    - Collection<Stage> stages
+    + AbstractBasePipeline()
+    + AbstractBasePipeline(Collection<Stage> stages)
+    + AbstractBasePipeline addStage(Stage stage)
+    # abstract PipelineContext doExecute(PipelineContext ctx, Collection<Collection<Stage>> bucketedStages)
+    # boolean postVerify(Stage stage, PipelineContext ctx)
+    # boolean verify(Collection<String> keys, PipelineContext ctx)
+}
+
+class Node {
+    # Set<String> provides
+    # Collection<Stage> stages
+    # Node parent
+    # Node next
+    + Node()
+    + Node(Node parent)
+    + Collection<String> findProvidedDependencies()
+    + void addStages(PipelineContext ctx, Collection<Stage> incomingStages)
+}
+
+class DependencyResolver {
+    - Node root
+    + DependencyResolver orderStages(PipelineContext ctx, Collection<Stage> stages)
+    + Collection<Collection<Stage>> getResolvedStages()
+}
+
+class StandardPipeline extends AbstractBasePipeline {
+    + StandardPipeline(Collection<Stage> stages)
+    # PipelineContext doExecute(PipelineContext ctx, Collection<Collection<Stage>> bucketedStages)
+}
+
+class ParallelPipelineContext implements PipelineContext {
+    - Map<String, Object> context
+    + ParallelPipelineContext()
+    + ParallelPipelineContext(PipelineContext ctx)
+    + ParallelPipelineContext merge(PipelineContext context)
+}
+
+class NativeTheadedPipeline extends StandardPipeline {
+    # static ForkJoinPool forkJoinPool;
+    # int timeout
+    + NativeTheadedPipeline(Collection<Stage> stages)
+    + NativeTheadedPipeline(Collection<Stage> stages, int timeout)
+    # PipelineContext doExecute(PipelineContext incomingCtx, Collection<Collection<Stage>> bucketedStages)
+}
+
+class VirtualThreadedPipeline extends StandardPipeline {
+    # int timeout
+    + VirtualThreadedPipeline(Collection<Stage> stages)
+    + VirtualThreadedPipeline(Collection<Stage> stages, int timeout)
+    # PipelineContext doExecute(PipelineContext incomingContext, Collection<Collection<Stage>> bucketedStages)
+}
+
+class PipelineException extends RuntimeException {
+    + PipelineException(String message)
+}
+
+class PipelineExecutionException extends PipelineException {
+    - PipelineContext ctx
+    + PipelineExecutionException(String message, PipelineContext ctx)
+    + PipelineContext getCtx()
+}
+
+class ThreadTimeoutExceededException extends PipelineException {
+    # int timeout;
+    + ThreadTimeoutExceededException(String message, int timeout)
+    + int getTimeout()
+}
+
+class UnresolvedDependenciesException extends PipelineException {
+    + UnresolvedDependenciesException(String message)
+}
+
+@enduml
