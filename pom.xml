@@ -19,7 +19,7 @@
     <modules>
         <module>flow</module>
         <module>pipeline</module>
-        <module>examples</module>
+        <module>pipes</module>
         <module>utilities</module>
     </modules>
 
@@ -55,5 +55,4 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
 </project>
